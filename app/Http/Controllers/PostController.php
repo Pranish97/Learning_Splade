@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Spatie\QueryBuilder\AllowedFilter;
 use Illuminate\Support\Collection;
 use Spatie\QueryBuilder\QueryBuilder;
+use App\Http\Requests\PostStoreRequest;
 
 class PostController extends Controller
 {
@@ -40,5 +41,18 @@ class PostController extends Controller
                 ->selectFilter('category_id' , $categories)
                 ->paginate(),
         ]);
+    }
+
+    public function create()
+    {
+        return view('posts.create');
+    }
+
+    public function store(PostStoreRequest $request)
+    {
+        Post::create($request->validated());
+
+        return redirect()->route('posts.index');
+
     }
 }
