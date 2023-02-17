@@ -16,6 +16,7 @@ class CategoryController extends Controller
                 ->column('name', canBeHidden: false, sortable: true,)
                 ->withGlobalSearch(columns: ['name', 'slug'])
                 ->column('slug')
+                ->column('action')
                 ->paginate(5),
         ]);
 
