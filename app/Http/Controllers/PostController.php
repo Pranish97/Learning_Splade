@@ -10,6 +10,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 use Illuminate\Support\Collection;
 use Spatie\QueryBuilder\QueryBuilder;
 use App\Http\Requests\PostStoreRequest;
+use ProtoneMedia\Splade\Facades\Toast;
 
 class PostController extends Controller
 {
@@ -45,14 +46,28 @@ class PostController extends Controller
 
     public function create()
     {
-        return view('posts.create');
+        $category = Category::pluck('name', 'id')->toArray();
+        return view('posts.create', compact('category'));
     }
 
     public function store(PostStoreRequest $request)
     {
         Post::create($request->validated());
+        Toast::title('Post Created Successfully');
 
         return redirect()->route('posts.index');
+    }
 
+    public function edit(Post $post)
+    {
+        $category = Category::pluck('name', 'id')->toArray();
+        return view('posts.edit', compact('category', 'post'));
+    }
+
+    public function update(PostStoreRequest $request, Post $post){
+        $post->update($request->validated());
+        Toast::title('Post Updated Successfully');
+
+        return to_route('posts.index');
     }
 }
