@@ -10,6 +10,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 use Illuminate\Support\Collection;
 use Spatie\QueryBuilder\QueryBuilder;
 use App\Models\Category;
+use ProtoneMedia\Splade\Facades\Toast;
 
 class Posts extends AbstractTable
 {
@@ -63,17 +64,30 @@ class Posts extends AbstractTable
 
        $posts = QueryBuilder::for(Post::class)
         ->defaultSort('title')
-        ->allowedSorts(['title', 'slug'])
+        ->allowedSorts(['title', 'slug','id'])
         ->allowedFilters(['title', 'slug','category_id', $globalSearch]);
 
         $categories = Category::pluck('name', 'id')->toArray();
 
         $table
+        ->column('id', sortable: true)
         ->column('title', canBeHidden: false, sortable: true,)
         ->withGlobalSearch(columns: ['title'])
         ->column('slug', sortable: true)
+        ->column('Updated_at')
         ->column('action',  exportAs: false)
         ->selectFilter('category_id' , $categories)
+        ->bulkAction(
+            label: 'Touch timestamp',
+            each: fn (Post $post) => $post->touch(),
+            before: fn () => info('Touching the selected projects'),
+            after: fn () => Toast::info('Timestamps updated!')
+        )
+        ->bulkAction(
+            label: 'Delete Post',
+            each: fn (Post $post) => $post->delete(),
+            after: fn () => Toast::info('Posts Deleted!')
+        )
         ->export(label: 'Post Excel')
         ->paginate();
 
